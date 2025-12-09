@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Fair Stock</title>
+    <meta name="description" content="Fair Stock - Adimology based fair price calculator" />
+
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#050816" />
+
+    <style>
+      :root {
+        --bg: #020617;
+        --bg-soft: rgba(15,23,42,0.9);
+        --bg-softer: rgba(15,23,42,0.7);
+        --accent: #4f46e5; /* indigo */
+        --accent-soft: rgba(79,70,229,0.28);
+        --accent-soft-strong: rgba(129,140,248,0.55);
+        --fg: #e5e7eb;
+        --fg-muted: #9ca3af;
+        --border-subtle: rgba(129,140,248,0.5);
+        --danger: #f97373;
+        --shadow-glass: 0 18px 45px rgba(15,23,42,0.9);
+        --radius-lg: 18px;
+      }
+
+      [data-theme="light"] {
+        --bg: #e0e7ff; /* indigo-100 */
+        --bg-soft: rgba(255,255,255,0.98);
+        --bg-softer: rgba(219,234,254,0.9);
+        --accent: #4f46e5; /* indigo-600 */
+        --accent-soft: rgba(129,140,248,0.25);
+        --accent-soft-strong: rgba(99,102,241,0.45);
+        --fg: #020617;
+        --fg-muted: #4b5563;
+        --border-subtle: rgba(99,102,241,0.65);
+        --danger: #dc2626;
+        --shadow-glass: 0 18px 45px rgba(15,23,42,0.14);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+        background: radial-gradient(circle at top, #1d2649 0, #020617 55%, #020617 100%);
+        color: var(--fg);
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+      }
+
+      [data-theme="light"] body {
+        background: radial-gradient(circle at top, #e5e7ff 0, #e0e7ff 45%, #e0e7ff 100%);
+      }
+
+      .page-shell {
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      @media (min-width: 900px) {
+        .page-shell {
+          padding: 28px 32px 36px;
+          gap: 22px;
+        }
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .brand-logo {
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 10%, #a855f7, #6366f1 40%, #0b1120 100%);
+        box-shadow: 0 0 0 1px rgba(129,140,248,0.7), 0 14px 34px rgba(79,70,229,0.7);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .brand-logo::after {
+        content: "";
+        position: absolute;
+        inset: 22% 18%;
+        border-radius: 30% 70% 40% 60%;
+        background: radial-gradient(circle at 30% 10%, rgba(248,250,252,0.9), transparent 55%);
+        opacity: 0.7;
+      }
+
+      .brand-text-main {
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+      }
+
+      .brand-text-sub {
+        font-size: 0.72rem;
+        color: var(--fg-muted);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
+
+      .theme-toggle {
+        border-radius: 999px;
+        border: 1px solid rgba(129,140,248,0.9);
+        background: radial-gradient(circle at 10% 0, rgba(196,181,253,0.16), transparent 55%),
+          linear-gradient(135deg, rgba(15,23,42,0.9), rgba(17,24,39,0.6));
+        color: var(--fg);
+        padding: 4px 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 0.78rem;
+      }
+
+      .theme-toggle span.icon {
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 20%, #e0e7ff, #818cf8 72%);
+        box-shadow: 0 0 0 1px rgba(191,219,254,0.7);
+      }
+
+      [data-theme="dark"] .theme-toggle span.icon {
+        background: radial-gradient(circle at 30% 20%, #f9a8ff, #4c1d95 75%);
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr);
+        gap: 14px;
+      }
+
+      @media (min-width: 900px) {
+        main {
+          grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+          align-items: flex-start;
+        }
+      }
+
+      .card-glass {
+        background: radial-gradient(circle at 0 0, rgba(56,189,248,0.18), transparent 55%),
+          radial-gradient(circle at 100% 0, rgba(129,140,248,0.35), transparent 52%),
+          linear-gradient(140deg, var(--bg-soft), var(--bg-softer));
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(148,163,184,0.45);
+        box-shadow: var(--shadow-glass);
+        backdrop-filter: blur(22px) saturate(160%);
+        -webkit-backdrop-filter: blur(22px) saturate(160%);
+      }
+
+      .card-header {
+        padding: 14px 16px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .card-header-title {
+        font-size: 0.86rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+      }
+
+      .card-header-subtitle {
+        font-size: 0.72rem;
+        color: var(--fg-muted);
+      }
+
+      .card-body {
+        padding: 8px 16px 14px;
+      }
+
+      .card-section-label {
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--fg-muted);
+        margin-bottom: 8px;
+      }
+
+      .grid-two {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+        gap: 8px;
+      }
+
+      .grid-three {
+        display: grid;
+        grid-template-columns: repeat(3,minmax(0,1fr));
+        gap: 8px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .field label {
+        font-size: 0.74rem;
+        color: var(--fg-muted);
+      }
+
+      .field input,
+      .field select {
+        width: 100%;
+        border-radius: 999px;
+        border: 1px solid rgba(148,163,184,0.6);
+        padding: 7px 10px;
+        font-size: 0.8rem;
+        color: var(--fg);
+        background: radial-gradient(circle at 0 0, rgba(129,140,248,0.28), transparent 55%),
+          linear-gradient(135deg, rgba(15,23,42,0.98), rgba(17,24,39,0.86));
+        outline: none;
+      }
+
+      [data-theme="light"] .field input,
+      [data-theme="light"] .field select {
+        background: linear-gradient(135deg, rgba(249,250,251,0.8), rgba(229,231,235,0.9));
+      }
+
+      .field input::placeholder {
+        color: rgba(148,163,184,0.75);
+      }
+
+      .field input:focus,
+      .field select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(34,197,94,0.5);
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .pill {
+        border-radius: 999px;
+        padding: 4px 10px;
+        border: 1px solid rgba(129,140,248,0.7);
+        font-size: 0.7rem;
+        color: var(--fg);
+        background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,64,175,0.7));
+      }
+
+      .pill strong {
+        color: var(--fg);
+        font-weight: 500;
+      }
+
+      .btn-primary {
+        border-radius: 999px;
+        padding: 8px 12px;
+        border: 1px solid rgba(129,140,248,0.95);
+        background: radial-gradient(circle at 0 0, rgba(96,165,250,0.35), transparent 55%),
+          linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: #e5e7eb;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 16px 38px rgba(79,70,229,0.7);
+      }
+
+      .btn-primary:active {
+        transform: translateY(1px);
+        box-shadow: 0 12px 26px rgba(79,70,229,0.65);
+      }
+
+      .btn-ghost {
+        border-radius: 999px;
+        padding: 6px 10px;
+        border: 1px solid rgba(129,140,248,0.7);
+        background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,64,175,0.7));
+        color: var(--fg);
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .btn-ghost.danger {
+        border-color: rgba(248,113,113,0.8);
+        color: var(--danger);
+        background: linear-gradient(135deg, rgba(30,64,175,0.45), rgba(15,23,42,0.9));
+      }
+
+      .results-grid {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      @media (min-width: 600px) {
+        .results-grid {
+          grid-template-columns: repeat(3,minmax(0,1fr));
+        }
+      }
+
+      .metric-card {
+        border-radius: 14px;
+        padding: 8px 10px;
+        border: 1px solid rgba(129,140,248,0.7);
+        background: radial-gradient(circle at 0 0, rgba(96,165,250,0.16), transparent 55%),
+          linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,64,175,0.9));
+      }
+
+      .metric-label {
+        font-size: 0.7rem;
+        color: var(--fg-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        margin-bottom: 4px;
+      }
+
+      .metric-value-main {
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .metric-sub-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 4px;
+        margin-top: 4px;
+        font-size: 0.68rem;
+        color: var(--fg-muted);
+      }
+
+      .metric-sub-row span strong {
+        color: var(--fg);
+      }
+
+      .history-list {
+        max-height: 360px;
+        overflow: auto;
+        padding: 0 0 4px;
+        margin: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .history-item {
+        border-radius: 14px;
+        padding: 8px 10px;
+        border: 1px solid rgba(148,163,184,0.6);
+        background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(15,23,42,0.8));
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 0.78rem;
+      }
+
+      .history-row-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .tag-emiten {
+        font-weight: 600;
+        font-size: 0.8rem;
+      }
+
+      .tag-date {
+        font-size: 0.7rem;
+        color: var(--fg-muted);
+      }
+
+      .tag-chip {
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(34,197,94,0.7);
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .history-row-bottom {
+        display: flex;
+        justify-content: space-between;
+        gap: 6px;
+        flex-wrap: wrap;
+        color: var(--fg-muted);
+        font-size: 0.7rem;
+      }
+
+      .history-row-bottom span strong {
+        color: var(--fg);
+      }
+
+      .history-empty {
+        font-size: 0.74rem;
+        color: var(--fg-muted);
+      }
+
+      footer {
+        margin-top: 4px;
+        font-size: 0.68rem;
+        color: var(--fg-muted);
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      /* Light theme overrides for better readability */
+      [data-theme="light"] .card-glass {
+        background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(239,246,255,0.96));
+        border-color: rgba(99,102,241,0.25);
+        box-shadow: 0 18px 40px rgba(148,163,184,0.25);
+      }
+
+      [data-theme="light"] .metric-card {
+        background: linear-gradient(135deg, #ffffff, #e5edff);
+        border-color: rgba(99,102,241,0.35);
+      }
+
+      [data-theme="light"] .pill {
+        background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+        color: #1f2933;
+      }
+
+      [data-theme="light"] .btn-primary {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: #f9fafb;
+        box-shadow: 0 14px 32px rgba(79,70,229,0.55);
+      }
+
+      [data-theme="light"] .btn-ghost {
+        background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+        color: #111827;
+      }
+
+      [data-theme="light"] .history-item {
+        background: linear-gradient(135deg, #ffffff, #e5edff);
+        border-color: rgba(148,163,184,0.45);
+        color: #111827;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header>
+        <div class="brand">
+          <div class="brand-logo"></div>
+          <div>
+            <div class="brand-text-main">Fair Stock</div>
+            <div class="brand-text-sub">Adimology Engine</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="themeToggle" type="button" class="theme-toggle" aria-label="Toggle theme">
+            <span class="icon"></span>
+            <span id="themeLabel">Dark</span>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="card-glass">
+          <div class="card-header">
+            <div>
+              <div class="card-header-title">Input order</div>
+              <div class="card-header-subtitle">Tanggal, emiten, broker, bid/offer summary</div>
+            </div>
+            <button id="submitBtn" class="btn-primary" type="button">
+              <span>Hitung</span>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="card-section-label">Detail order</div>
+            <div class="grid-two">
+              <div class="field">
+                <label for="tanggal">Tanggal</label>
+                <input id="tanggal" type="date" />
+              </div>
+              <div class="field">
+                <label for="emiten">Emiten</label>
+                <input id="emiten" type="text" placeholder="BBCA, BBRI, ..." />
+              </div>
+            </div>
+
+            <div class="card-section-label" style="margin-top:10px;">Broker summary</div>
+            <div class="grid-three">
+              <div class="field">
+                <label for="brokerCode">Code Broker (D)</label>
+                <input id="brokerCode" type="text" placeholder="YP, CC, ..." />
+              </div>
+              <div class="field">
+                <label for="buyLot">Buy Lot (F)</label>
+                <input id="buyLot" type="number" min="0" step="1" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="buyAvg">Buy Avg (G)</label>
+                <input id="buyAvg" type="number" min="0" step="1" inputmode="decimal" />
+              </div>
+            </div>
+
+            <div class="card-section-label" style="margin-top:10px;">Order Book</div>
+            <div class="grid-two">
+              <div class="field">
+                <label for="bidLowest">Bid Lowest (H)</label>
+                <input id="bidLowest" type="number" min="0" step="1" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="offerHighest">Offer Highest (I)</label>
+                <input id="offerHighest" type="number" min="0" step="1" inputmode="decimal" />
+              </div>
+            </div>
+            <div class="grid-two" style="margin-top:8px;">
+              <div class="field">
+                <label for="totalBid">Total Bid (lot) (J)</label>
+                <input id="totalBid" type="number" min="0" step="1" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="totalOffer">Total Offer (lot) (K)</label>
+                <input id="totalOffer" type="number" min="0" step="1" inputmode="decimal" />
+              </div>
+            </div>
+
+            <div class="pill-row">
+              <div class="pill">Total Bid + Offer (L): <strong><span id="lTotal">-</span></strong></div>
+              <div class="pill">Avg Bid Offer (S): <strong><span id="sAvg">-</span></strong></div>
+              <div class="pill">Power (T): <strong><span id="tPower">-</span></strong></div>
+            </div>
+
+            <div class="card-section-label" style="margin-top:10px;">Target price</div>
+            <div class="results-grid">
+              <div class="metric-card">
+                <div class="metric-label">Target 5%</div>
+                <div class="metric-value-main" id="uTarget5">-</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Realistis Low</div>
+                <div class="metric-value-main" id="vRealisticLow">-</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Realistis High</div>
+                <div class="metric-value-main" id="wRealisticHigh">-</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Total Fraksi (R)</div>
+                <div class="metric-value-main" id="rTotalFractions">-</div>
+                <div class="metric-sub-row">
+                  <span>M: <strong id="mF1">-</strong></span>
+                  <span>N: <strong id="nF2">-</strong></span>
+                  <span>O: <strong id="oF5">-</strong></span>
+                </div>
+                <div class="metric-sub-row">
+                  <span>P: <strong id="pF10">-</strong></span>
+                  <span>Q: <strong id="qF25">-</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card-glass">
+          <div class="card-header">
+            <div>
+              <div class="card-header-title">Riwayat</div>
+              <div class="card-header-subtitle">Disimpan lokal di browser (localStorage)</div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <button id="clearHistoryBtn" type="button" class="btn-ghost danger">
+                <span>Hapus riwayat</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <ul id="historyList" class="history-list"></ul>
+            <div id="historyEmpty" class="history-empty">Belum ada riwayat.</div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <span>Semua perhitungan berjalan di perangkat kamu.</span>
+        <span>Riwayat dapat dihapus kapan saja.</span>
+      </footer>
+    </div>
+
+    <script src="./main.js" type="module"></script>
+  </body>
+</html>
