@@ -1,4 +1,4 @@
-const CACHE_NAME = "fair-stock-shell-v1";
+const CACHE_NAME = "fair-stock-shell-v2";
 const ASSETS = ["/", "/index.html", "/main.js", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {

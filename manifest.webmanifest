@@ -3,8 +3,8 @@
   "short_name": "FairStock",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#050816",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
   "description": "Fair Stock - Adimology based fair price calculator",
   "icons": [
     {
