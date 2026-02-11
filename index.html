@@ -1,627 +1,1077 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fair Stock | Adimology Calculator</title>
-    <meta name="description" content="Calculate fair prices and power analysis based on Adimology method." />
-    
-    <!-- PWA -->
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#0f172a" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ADIMOLOGY | Fair Stock Calculator</title>
+  <meta name="description" content="Analisis Daya Investasi — Broker Power Calculator. Hitung target harga saham berdasarkan metode Adimology." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#09090b" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
 
-    <style>
-      :root {
-        /* Colors - Dark Theme (Default) */
-        --bg-body: #0f172a;
-        --bg-card: #1e293b;
-        --bg-input: #334155;
-        --border-color: #334155;
-        --text-main: #f8fafc;
-        --text-muted: #94a3b8;
-        --primary: #6366f1; /* Indigo 500 */
-        --primary-hover: #4f46e5;
-        --accent: #22d3ee; /* Cyan 400 */
-        --success: #10b981;
-        --danger: #ef4444;
-        
-        /* Spacing & Radius */
-        --radius: 12px;
-        --container-width: 1200px;
-        --header-height: 64px;
-      }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
-      [data-theme="light"] {
-        --bg-body: #f1f5f9;
-        --bg-card: #ffffff;
-        --bg-input: #f8fafc;
-        --border-color: #e2e8f0;
-        --text-main: #0f172a;
-        --text-muted: #64748b;
-        --primary: #4f46e5; /* Indigo 600 */
-        --primary-hover: #4338ca;
-        --accent: #0891b2; /* Cyan 600 */
-      }
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       CSS VARIABLES & THEME
+       ═══════════════════════════════════════════════════════════════ */
+    :root {
+      --bg-body: #09090b;
+      --bg-card: rgba(24,24,27,0.5);
+      --bg-card-solid: #18181b;
+      --bg-input: rgba(24,24,27,0.8);
+      --border: rgba(39,39,42,0.6);
+      --border-hover: rgba(63,63,70,0.8);
+      --text-primary: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --text-dim: #52525b;
+      --violet-500: #8b5cf6;
+      --violet-600: #7c3aed;
+      --fuchsia-500: #d946ef;
+      --fuchsia-600: #c026d3;
+      --blue-400: #60a5fa;
+      --blue-500: #3b82f6;
+      --cyan-400: #22d3ee;
+      --cyan-500: #06b6d4;
+      --emerald-400: #34d399;
+      --emerald-500: #10b981;
+      --amber-400: #fbbf24;
+      --amber-500: #f59e0b;
+      --red-400: #f87171;
+      --red-500: #ef4444;
+      --orange-400: #fb923c;
+      --green-400: #4ade80;
+      --purple-500: #a855f7;
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-xs: 8px;
+      --header-h: 60px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
 
-      * { box-sizing: border-box; margin: 0; padding: 0; }
+    [data-theme="light"] {
+      --bg-body: #f4f4f5;
+      --bg-card: rgba(255,255,255,0.7);
+      --bg-card-solid: #ffffff;
+      --bg-input: rgba(244,244,245,0.9);
+      --border: rgba(228,228,231,0.8);
+      --border-hover: rgba(212,212,216,1);
+      --text-primary: #18181b;
+      --text-secondary: #52525b;
+      --text-muted: #71717a;
+      --text-dim: #a1a1aa;
+    }
 
-      body {
-        font-family: 'Inter', system-ui, sans-serif;
-        background-color: var(--bg-body);
-        color: var(--text-main);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        transition: background-color 0.3s ease, color 0.3s ease;
-      }
+    /* ═══════════════════════════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      /* Layout */
-      .container {
-        width: 100%;
-        max-width: var(--container-width);
-        margin: 0 auto;
-        padding: 0 16px;
-      }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
-      header {
-        height: var(--header-height);
-        border-bottom: 1px solid var(--border-color);
-        background-color: rgba(15, 23, 42, 0.8); /* fallback */
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-      }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      min-height: 100vh;
+      min-height: 100dvh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
 
-      [data-theme="light"] header {
-        background-color: rgba(255, 255, 255, 0.8);
-      }
+    input, button, textarea { font-family: inherit; }
 
-      .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-      }
+    /* ═══════════════════════════════════════════════════════════════
+       HEADER
+       ═══════════════════════════════════════════════════════════════ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: var(--header-h);
+      border-bottom: 1px solid var(--border);
+      background: rgba(9,9,11,0.85);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      display: flex;
+      align-items: center;
+    }
+    [data-theme="light"] .header {
+      background: rgba(244,244,245,0.85);
+    }
 
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 700;
-        font-size: 1.25rem;
-        color: var(--text-main);
-      }
+    .header-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-      .brand span {
-        color: var(--primary);
-      }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-      .theme-toggle {
-        background: none;
-        border: 1px solid var(--border-color);
-        color: var(--text-main);
-        padding: 8px;
-        border-radius: 999px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        transition: all 0.2s;
-      }
+    .brand-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--violet-600), var(--fuchsia-600));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(139,92,246,0.25);
+      flex-shrink: 0;
+    }
 
-      .theme-toggle:hover {
-        background-color: var(--bg-input);
-      }
+    .brand-icon svg { width: 20px; height: 20px; color: #fff; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-      /* Main Content */
-      main {
-        flex: 1;
-        padding: 24px 0 48px;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
+    .brand-text h1 {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
 
-      @media (min-width: 1024px) {
-        main {
-          grid-template-columns: 350px 1fr;
-          align-items: start;
-        }
-      }
+    .brand-text p {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      font-weight: 500;
+    }
 
-      /* Cards */
-      .card {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius);
-        padding: 24px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
 
-      .card-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
+    .btn-icon {
+      width: 36px; height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover { background: var(--bg-input); color: var(--text-primary); border-color: var(--border-hover); }
+    .btn-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-      /* Forms */
-      .form-group {
-        margin-bottom: 16px;
-      }
+    #installBtn { display: none; }
+    #installBtn.show { display: flex; }
 
-      .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-      }
-      
-      .form-row.three-col {
-        grid-template-columns: 1fr 1fr 1fr;
-      }
+    /* ═══════════════════════════════════════════════════════════════
+       LAYOUT
+       ═══════════════════════════════════════════════════════════════ */
+    .app-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: calc(24px + var(--safe-bottom));
+    }
 
-      label {
-        display: block;
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text-muted);
-        margin-bottom: 6px;
-      }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
 
-      input[type="text"],
-      input[type="number"],
-      input[type="date"] {
-        width: 100%;
-        padding: 10px 12px;
-        background-color: var(--bg-input);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        color: var(--text-main);
-        font-family: inherit;
-        font-size: 0.95rem;
-        transition: border-color 0.2s, box-shadow 0.2s;
+    @media (min-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 380px 1fr;
+        gap: 20px;
+        align-items: start;
       }
+      .app-container { padding: 24px; }
+    }
 
-      input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-      }
+    .left-col { display: flex; flex-direction: column; gap: 16px; }
+    .right-col { display: flex; flex-direction: column; gap: 16px; }
 
-      .section-divider {
-        height: 1px;
-        background-color: var(--border-color);
-        margin: 24px 0;
-      }
+    /* ═══════════════════════════════════════════════════════════════
+       CARD
+       ═══════════════════════════════════════════════════════════════ */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
 
-      .btn {
-        width: 100%;
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: transform 0.1s, box-shadow 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-      }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .card-header svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .card-header span { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
 
-      .btn-primary {
-        background-color: var(--primary);
-        color: white;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-      }
+    /* ═══════════════════════════════════════════════════════════════
+       INPUT FORM
+       ═══════════════════════════════════════════════════════════════ */
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-      .btn-primary:hover {
-        background-color: var(--primary-hover);
-        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
-      }
-      
-      .btn-primary:active {
-        transform: translateY(1px);
-      }
+    .field { display: flex; flex-direction: column; gap: 4px; }
 
-      .btn-ghost {
-        background-color: transparent;
-        color: var(--text-muted);
-        font-size: 0.85rem;
-        padding: 8px;
-        width: auto;
-      }
-      
-      .btn-ghost:hover {
-        color: var(--danger);
-        background-color: rgba(239, 68, 68, 0.1);
-      }
+    .field-label {
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-      /* Results */
-      .results-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-      }
+    .field-wrap {
+      position: relative;
+    }
 
-      .result-card {
-        background-color: var(--bg-input);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
+    .field-wrap input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      padding: 10px 12px;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    .field-wrap input::placeholder { color: var(--text-dim); }
+    .field-wrap input:focus { outline: none; border-color: rgba(139,92,246,0.5); box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
+    .field-wrap input::-webkit-outer-spin-button,
+    .field-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-      .result-card.highlight {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(34, 211, 238, 0.1));
-        border-color: var(--primary);
-      }
+    .field-suffix {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      pointer-events: none;
+    }
 
-      .result-label {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-muted);
-        font-weight: 600;
-      }
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
 
-      .result-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--text-main);
-        font-family: 'JetBrains Mono', monospace;
-      }
-      
-      .result-value.small {
-        font-size: 1.1rem;
-      }
+    .btn-calc {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: var(--radius-xs);
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      color: #fff;
+      background: linear-gradient(135deg, var(--violet-600), var(--fuchsia-600));
+      box-shadow: 0 4px 16px rgba(139,92,246,0.25);
+    }
+    .btn-calc:hover { box-shadow: 0 6px 24px rgba(139,92,246,0.35); filter: brightness(1.05); }
+    .btn-calc:active { transform: translateY(1px); }
+    .btn-calc:disabled { opacity: 0.4; cursor: not-allowed; filter: none; box-shadow: none; }
+    .btn-calc svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-      .fraction-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.85rem;
-        margin-top: 12px;
-      }
+    /* ═══════════════════════════════════════════════════════════════
+       FRAKSI BREAKDOWN
+       ═══════════════════════════════════════════════════════════════ */
+    .fraksi-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .fraksi-label {
+      width: 40px;
+      text-align: right;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+    .fraksi-track {
+      flex: 1;
+      height: 14px;
+      background: var(--bg-input);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .fraksi-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.5s ease;
+      min-width: 0;
+    }
+    .fraksi-fill.f1 { background: var(--blue-500); }
+    .fraksi-fill.f2 { background: var(--cyan-500); }
+    .fraksi-fill.f5 { background: var(--emerald-500); }
+    .fraksi-fill.f10 { background: var(--amber-500); }
+    .fraksi-fill.f25 { background: var(--purple-500); }
 
-      .fraction-table td {
-        padding: 6px 0;
-        border-bottom: 1px solid var(--border-color);
-        color: var(--text-muted);
-      }
-      
-      .fraction-table td:last-child {
-        text-align: right;
-        font-weight: 600;
-        color: var(--text-main);
-        font-family: 'JetBrains Mono', monospace;
-      }
-      
-      .fraction-table tr:last-child td {
-        border-bottom: none;
-      }
+    .fraksi-val {
+      width: 36px;
+      text-align: right;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+    .fraksi-pct {
+      width: 32px;
+      font-size: 0.55rem;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
 
-      /* History */
-      .history-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        list-style: none;
-        max-height: 500px;
-        overflow-y: auto;
-        padding-right: 4px;
-      }
-      
-      /* Scrollbar */
-      .history-list::-webkit-scrollbar {
-        width: 6px;
-      }
-      .history-list::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .history-list::-webkit-scrollbar-thumb {
-        background-color: var(--border-color);
-        border-radius: 99px;
-      }
+    .fraksi-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+    .fraksi-summary .fs-label { font-size: 0.6rem; color: var(--text-muted); }
+    .fraksi-summary .fs-value { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); }
 
-      .history-item {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        transition: border-color 0.2s;
-      }
-      
-      .history-item:hover {
-        border-color: var(--primary);
-      }
+    /* ═══════════════════════════════════════════════════════════════
+       POWER HERO
+       ═══════════════════════════════════════════════════════════════ */
+    .power-hero {
+      background: linear-gradient(135deg, rgba(24,24,27,0.8), rgba(24,24,27,0.4));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    [data-theme="light"] .power-hero {
+      background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(250,250,250,0.6));
+    }
 
-      .history-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
+    .power-hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
 
-      .history-title {
-        font-weight: 700;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      
-      .history-date {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        font-weight: 400;
-      }
-      
-      .badge {
-        font-size: 0.7rem;
-        padding: 2px 8px;
-        border-radius: 99px;
-        background-color: var(--bg-input);
-        color: var(--text-muted);
-        text-transform: uppercase;
-        font-weight: 600;
-      }
-      
-      .history-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-        font-size: 0.85rem;
-      }
-      
-      .history-metric {
-        display: flex;
-        flex-direction: column;
-      }
-      
-      .hm-label {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-      }
-      
-      .hm-value {
-        font-weight: 600;
-        font-family: 'JetBrains Mono', monospace;
-      }
+    .power-number {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    @media (min-width: 768px) { .power-number { font-size: 4rem; } }
 
-      footer {
-        text-align: center;
-        padding: 24px;
-        color: var(--text-muted);
-        font-size: 0.85rem;
-        border-top: 1px solid var(--border-color);
-        margin-top: auto;
-      }
+    .power-unit {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-left: 8px;
+    }
 
-      /* Icons */
-      .icon {
-        width: 20px;
-        height: 20px;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <div class="container header-content">
-        <div class="brand">
-          <svg class="icon" viewBox="0 0 24 24" style="color: var(--primary);">
-            <path d="M3 3v18h18" />
-            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
-          </svg>
-          Fair Stock <span>Calculator</span>
+    .power-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.625rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      border: 1px solid;
+      margin-top: 8px;
+    }
+    .power-badge svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .power-meta {
+      text-align: right;
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    @media (max-width: 480px) { .power-meta { text-align: left; } }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TARGET CARDS
+       ═══════════════════════════════════════════════════════════════ */
+    .targets-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (min-width: 768px) {
+      .targets-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .target-card {
+      background: rgba(24,24,27,0.5);
+      border: 1px solid rgba(39,39,42,0.5);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    [data-theme="light"] .target-card {
+      background: rgba(250,250,250,0.8);
+      border-color: var(--border);
+    }
+
+    .target-card .tc-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+    }
+    .target-card .tc-header svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .target-card .tc-header span { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .target-card .tc-value {
+      font-size: 1.25rem;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .target-card.large .tc-value { font-size: 1.5rem; }
+
+    .target-card .tc-sub {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PRICE BAR VISUALIZATION
+       ═══════════════════════════════════════════════════════════════ */
+    .price-bar-container {
+      position: relative;
+      height: 56px;
+      margin: 20px 0 32px;
+    }
+
+    .price-bar-range {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: rgba(39,39,42,0.4);
+      border-radius: var(--radius-xs);
+      border: 1px solid rgba(63,63,70,0.3);
+    }
+    [data-theme="light"] .price-bar-range {
+      background: rgba(228,228,231,0.5);
+      border-color: rgba(212,212,216,0.5);
+    }
+
+    .price-bar-marker {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 2px;
+    }
+
+    .price-bar-label {
+      position: absolute;
+      font-size: 0.55rem;
+      font-weight: 700;
+      white-space: nowrap;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .price-bar-zone {
+      position: absolute;
+      top: 4px;
+      height: calc(100% - 8px);
+      border-radius: 4px;
+    }
+
+    .price-bar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .price-bar-legend .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .price-bar-legend .rect {
+      width: 12px;
+      height: 8px;
+      border-radius: 2px;
+      display: inline-block;
+      margin-right: 4px;
+      vertical-align: middle;
+      background: rgba(39,39,42,0.6);
+      border: 1px solid rgba(63,63,70,0.5);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HOW IT WORKS
+       ═══════════════════════════════════════════════════════════════ */
+    .how-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 640px) { .how-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .how-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .how-item { font-size: 0.65rem; color: var(--text-muted); line-height: 1.5; }
+    .how-item .step { color: var(--violet-500); font-weight: 700; margin-bottom: 2px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       EMPTY STATE
+       ═══════════════════════════════════════════════════════════════ */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      text-align: center;
+      background: rgba(24,24,27,0.2);
+      border: 1px solid rgba(39,39,42,0.3);
+      border-radius: var(--radius);
+      min-height: 300px;
+    }
+    [data-theme="light"] .empty-state {
+      background: rgba(250,250,250,0.5);
+      border-color: var(--border);
+    }
+    .empty-state svg { width: 48px; height: 48px; color: var(--text-dim); margin-bottom: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .empty-state .es-title { font-size: 0.875rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+    .empty-state .es-desc { font-size: 0.75rem; color: var(--text-dim); max-width: 320px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HISTORY
+       ═══════════════════════════════════════════════════════════════ */
+    .history-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .history-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .history-toggle:hover { background: rgba(39,39,42,0.2); }
+    [data-theme="light"] .history-toggle:hover { background: rgba(244,244,245,0.5); }
+
+    .history-toggle-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+    }
+    .history-toggle-left svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .history-toggle-left .ht-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    .history-toggle-left .ht-count { font-size: 0.6rem; color: var(--text-dim); }
+
+    .history-toggle-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-clear {
+      font-size: 0.6rem;
+      color: rgba(248,113,113,0.6);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    .btn-clear:hover { color: var(--red-400); background: rgba(239,68,68,0.1); }
+    .btn-clear svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .chevron-icon { width: 16px; height: 16px; fill: none; stroke: var(--text-dim); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; }
+    .history-section.open .chevron-icon { transform: rotate(180deg); }
+
+    .history-body {
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+    .history-section.open .history-body { display: block; }
+
+    .history-empty {
+      padding: 32px 20px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* Desktop: Table */
+    .history-table {
+      width: 100%;
+      font-size: 0.68rem;
+      border-collapse: collapse;
+      display: none;
+    }
+    @media (min-width: 768px) { .history-table { display: table; } }
+
+    .history-table th {
+      padding: 8px 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .history-table th.right { text-align: right; }
+    .history-table th.center { text-align: center; }
+
+    .history-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(39,39,42,0.2);
+      white-space: nowrap;
+    }
+    [data-theme="light"] .history-table td { border-bottom-color: rgba(228,228,231,0.5); }
+    .history-table td.right { text-align: right; }
+    .history-table td.center { text-align: center; }
+
+    .history-table tr { cursor: pointer; transition: background 0.15s; }
+    .history-table tbody tr:hover { background: rgba(39,39,42,0.2); }
+    [data-theme="light"] .history-table tbody tr:hover { background: rgba(244,244,245,0.5); }
+
+    .history-table .col-time { color: var(--text-muted); }
+    .history-table .col-emiten { font-weight: 700; color: var(--text-primary); }
+    .history-table .col-broker { color: var(--text-secondary); }
+    .history-table .col-num { color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
+
+    .btn-delete-row {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .btn-delete-row:hover { color: var(--red-400); background: rgba(239,68,68,0.1); }
+    .btn-delete-row svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Mobile: Cards */
+    .history-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    @media (min-width: 768px) { .history-cards { display: none; } }
+
+    .history-card-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .history-card-item:hover { background: rgba(39,39,42,0.15); }
+    .history-card-item:last-child { border-bottom: none; }
+
+    .hc-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .hc-title { font-weight: 700; font-size: 0.85rem; }
+    .hc-time { font-size: 0.6rem; color: var(--text-muted); }
+
+    .hc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .hc-metric { display: flex; flex-direction: column; }
+    .hc-metric .hcm-label { font-size: 0.55rem; color: var(--text-muted); }
+    .hc-metric .hcm-value { font-size: 0.75rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════════════ */
+    .footer {
+      text-align: center;
+      padding: 20px 16px;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       ANIMATIONS
+       ═══════════════════════════════════════════════════════════════ */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeInUp 0.3s ease forwards; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SCROLLBAR
+       ═══════════════════════════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       UTILITY COLORS (for JS)
+       ═══════════════════════════════════════════════════════════════ */
+    .c-zinc { color: var(--text-secondary); }
+    .c-blue { color: var(--blue-400); }
+    .c-cyan { color: var(--cyan-400); }
+    .c-emerald { color: var(--emerald-400); }
+    .c-amber { color: var(--amber-400); }
+    .c-orange { color: var(--orange-400); }
+    .c-red { color: var(--red-400); }
+    .c-violet { color: var(--violet-500); }
+    .c-green { color: var(--green-400); }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg>
         </div>
-        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-          <!-- Sun Icon -->
-          <svg class="icon sun-icon" viewBox="0 0 24 24" style="display:none;">
-            <circle cx="12" cy="12" r="5" />
-            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-          </svg>
-          <!-- Moon Icon -->
-          <svg class="icon moon-icon" viewBox="0 0 24 24">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
+        <div class="brand-text">
+          <h1>ADIMOLOGY</h1>
+          <p>Analisis Daya Investasi — Broker Power Calculator</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="installBtn" class="btn-icon" aria-label="Install App" title="Install App">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+        <button id="themeToggle" class="btn-icon" aria-label="Toggle theme">
+          <svg class="sun-icon" viewBox="0 0 24 24" style="display:none;"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <div class="container">
-      <main>
-        <!-- Input Section -->
-        <section class="card">
-          <div class="card-title">
-            Input Data
+  <!-- ═══════════ APP ═══════════ -->
+  <div class="app-container">
+    <div class="main-grid">
+
+      <!-- ═══════════ LEFT COLUMN ═══════════ -->
+      <div class="left-col">
+
+        <!-- Input Form -->
+        <div class="card">
+          <div class="card-header">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            <span>Input Data</span>
           </div>
 
-          <form id="calculatorForm">
-            <!-- Basic Info -->
-            <div class="form-group">
-              <label>Stock Information</label>
-              <div class="form-row">
-                <input type="date" id="tanggal" required />
-                <input type="text" id="emiten" placeholder="Emiten (e.g. BBCA)" required style="text-transform:uppercase;" />
+          <div class="input-grid">
+            <div class="field">
+              <div class="field-label">Emiten</div>
+              <div class="field-wrap">
+                <input type="text" id="emiten" placeholder="BBCA" style="text-transform:uppercase;" autocomplete="off" />
               </div>
             </div>
-
-            <div class="section-divider"></div>
-
-            <!-- Broker Info -->
-            <div class="form-group">
-              <label>Broker Summary</label>
-              <div class="form-row three-col">
-                <div>
-                  <label for="brokerCode">Broker (D)</label>
-                  <input type="text" id="brokerCode" placeholder="Code" style="text-transform:uppercase;" />
-                </div>
-                <div>
-                  <label for="buyLot">Buy Lot (F)</label>
-                  <input type="text" inputmode="decimal" id="buyLot" placeholder="0" />
-                </div>
-                <div>
-                  <label for="buyAvg">Buy Avg (G)</label>
-                  <input type="text" inputmode="decimal" id="buyAvg" placeholder="0" />
-                </div>
+            <div class="field">
+              <div class="field-label">Broker</div>
+              <div class="field-wrap">
+                <input type="text" id="brokerCode" placeholder="CC" style="text-transform:uppercase;" autocomplete="off" />
               </div>
             </div>
+          </div>
 
-            <div class="section-divider"></div>
-
-            <!-- Order Book -->
-            <div class="form-group">
-              <label>Order Book Range</label>
-              <div class="form-row">
-                <div>
-                  <label for="bidLowest">Bid Lowest (H)</label>
-                  <input type="text" inputmode="decimal" id="bidLowest" placeholder="0" />
-                </div>
-                <div>
-                  <label for="offerHighest">Offer Highest (I)</label>
-                  <input type="text" inputmode="decimal" id="offerHighest" placeholder="0" />
-                </div>
+          <div class="input-grid" style="margin-top:12px;">
+            <div class="field">
+              <div class="field-label">Buy Lot</div>
+              <div class="field-wrap">
+                <input type="text" inputmode="numeric" id="buyLot" placeholder="100000" autocomplete="off" />
+                <span class="field-suffix">lot</span>
               </div>
             </div>
-
-            <div class="form-group">
-              <label>Order Book Depth</label>
-              <div class="form-row">
-                <div>
-                  <label for="totalBid">Total Bid (Lot) (J)</label>
-                  <input type="text" inputmode="decimal" id="totalBid" placeholder="0" />
-                </div>
-                <div>
-                  <label for="totalOffer">Total Offer (Lot) (K)</label>
-                  <input type="text" inputmode="decimal" id="totalOffer" placeholder="0" />
-                </div>
+            <div class="field">
+              <div class="field-label">Buy Avg</div>
+              <div class="field-wrap">
+                <input type="text" inputmode="numeric" id="buyAvg" placeholder="1250" autocomplete="off" />
+                <span class="field-suffix">Rp</span>
               </div>
             </div>
+          </div>
 
-            <div style="margin-top: 32px;">
-              <button type="button" id="submitBtn" class="btn btn-primary">
-                Calculate Analysis
-              </button>
-            </div>
-          </form>
-        </section>
+          <div class="divider"></div>
 
-        <!-- Results & History Section -->
-        <div style="display:flex; flex-direction:column; gap:24px;">
-          
-          <!-- Analysis Results -->
-          <section class="card">
-            <div class="card-title">
-              Analysis Result
-              <span class="badge" id="resultTicker">---</span>
-            </div>
-
-            <div class="results-grid">
-              <!-- Target Price (U) -->
-              <div class="result-card highlight">
-                <div class="result-label">Target 5% (U)</div>
-                <div class="result-value" id="uTarget5">-</div>
-              </div>
-              
-              <!-- Power (T) -->
-              <div class="result-card highlight">
-                <div class="result-label">Power (T)</div>
-                <div class="result-value" id="tPower">-</div>
+          <div class="input-grid">
+            <div class="field">
+              <div class="field-label">ARB</div>
+              <div class="field-wrap">
+                <input type="text" inputmode="numeric" id="arb" placeholder="191" autocomplete="off" />
+                <span class="field-suffix">Rp</span>
               </div>
             </div>
-
-            <div class="results-grid" style="margin-top: 16px;">
-              <!-- Realistic Low (V) -->
-              <div class="result-card">
-                <div class="result-label">Realistic Low</div>
-                <div class="result-value small" id="vRealisticLow">-</div>
-              </div>
-              <!-- Realistic High (W) -->
-              <div class="result-card">
-                <div class="result-label">Realistic High</div>
-                <div class="result-value small" id="wRealisticHigh">-</div>
+            <div class="field">
+              <div class="field-label">ARA</div>
+              <div class="field-wrap">
+                <input type="text" inputmode="numeric" id="ara" placeholder="280" autocomplete="off" />
+                <span class="field-suffix">Rp</span>
               </div>
             </div>
+          </div>
 
-            <div class="section-divider"></div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-              <div>
-                <div class="result-label" style="margin-bottom: 8px;">Calculation Details</div>
-                <table class="fraction-table">
-                  <tr>
-                    <td>Total Bid+Offer (L)</td>
-                    <td id="lTotal">-</td>
-                  </tr>
-                  <tr>
-                    <td>Avg Bid/Offer (S)</td>
-                    <td id="sAvg">-</td>
-                  </tr>
-                  <tr>
-                    <td>Total Fraction (R)</td>
-                    <td id="rTotalFractions">-</td>
-                  </tr>
-                </table>
-              </div>
-
-              <div>
-                <div class="result-label" style="margin-bottom: 8px;">Fraction Components</div>
-                <table class="fraction-table">
-                  <tr><td>M (< 200)</td><td id="mF1">-</td></tr>
-                  <tr><td>N (200 - 500)</td><td id="nF2">-</td></tr>
-                  <tr><td>O (500 - 2000)</td><td id="oF5">-</td></tr>
-                  <tr><td>P (2000 - 5000)</td><td id="pF10">-</td></tr>
-                  <tr><td>Q (> 5000)</td><td id="qF25">-</td></tr>
-                </table>
+          <div class="input-grid" style="margin-top:12px;">
+            <div class="field">
+              <div class="field-label">Total Bid</div>
+              <div class="field-wrap">
+                <input type="text" inputmode="numeric" id="totalBid" placeholder="205792" autocomplete="off" />
+                <span class="field-suffix">lot</span>
               </div>
             </div>
-          </section>
+            <div class="field">
+              <div class="field-label">Total Offer</div>
+              <div class="field-wrap">
+                <input type="text" inputmode="numeric" id="totalOffer" placeholder="683327" autocomplete="off" />
+                <span class="field-suffix">lot</span>
+              </div>
+            </div>
+          </div>
 
-          <!-- History -->
-          <section class="card">
-            <div class="card-title">
-              History
-              <button type="button" id="clearHistoryBtn" class="btn-ghost">Clear All</button>
-            </div>
-            
-            <ul id="historyList" class="history-list">
-              <!-- History items will be injected here -->
-            </ul>
-            <div id="historyEmpty" style="text-align:center; padding: 20px; color: var(--text-muted); font-size: 0.9rem;">
-              No history available.
-            </div>
-          </section>
+          <button type="button" id="submitBtn" class="btn-calc" style="margin-top:20px;" disabled>
+            <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg>
+            Simpan ke History
+          </button>
         </div>
-      </main>
 
-      <footer>
-        <p>&copy; 2024 Fair Stock Adimology Engine. All calculations performed locally.</p>
-      </footer>
+        <!-- Fraksi Breakdown -->
+        <div class="card" id="fraksiCard" style="display:none;">
+          <div class="card-header" style="justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+              <span>Fraksi Breakdown</span>
+            </div>
+            <span id="fraksiTotal" style="font-size:0.7rem;font-weight:900;color:var(--text-secondary);"></span>
+          </div>
+
+          <div id="fraksiRows"></div>
+
+          <div class="fraksi-summary" id="fraksiSummary"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════ RIGHT COLUMN ═══════════ -->
+      <div class="right-col">
+
+        <!-- Empty State (shown when no result) -->
+        <div id="emptyState" class="empty-state">
+          <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg>
+          <div class="es-title">Masukkan data untuk mulai kalkulasi</div>
+          <div class="es-desc">Isi semua field input di sebelah kiri: Emiten, Broker, Buy Lot, Buy Avg, ARB, ARA, Total Bid, dan Total Offer. Hasil kalkulasi akan muncul secara otomatis.</div>
+        </div>
+
+        <!-- Results (hidden initially) -->
+        <div id="resultsArea" style="display:none;">
+
+          <!-- Power Hero -->
+          <div class="power-hero animate-in" id="powerHero">
+            <div class="power-hero-top">
+              <div>
+                <div class="card-header" style="margin-bottom:8px;">
+                  <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  <span>Power Fraksi</span>
+                </div>
+                <div>
+                  <span class="power-number" id="powerValue">0</span>
+                  <span class="power-unit">ticks</span>
+                </div>
+                <div class="power-badge" id="powerBadge">
+                  <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  <span id="powerLabel">—</span>
+                </div>
+              </div>
+              <div class="power-meta" id="powerMeta"></div>
+            </div>
+          </div>
+
+          <!-- Target Cards -->
+          <div class="targets-grid animate-in" style="animation-delay:0.05s;" id="targetsGrid">
+            <div class="target-card">
+              <div class="tc-header">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                <span>Buy Average</span>
+              </div>
+              <div class="tc-value c-zinc" id="tcBuyAvg">—</div>
+              <div class="tc-sub">Harga beli rata-rata</div>
+            </div>
+            <div class="target-card">
+              <div class="tc-header">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                <span>Target 5%</span>
+              </div>
+              <div class="tc-value c-blue" id="tcTarget5">—</div>
+              <div class="tc-sub" id="tcTarget5Sub">+5% dari buy avg</div>
+            </div>
+            <div class="target-card">
+              <div class="tc-header">
+                <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                <span>Target Low</span>
+              </div>
+              <div class="tc-value c-emerald" id="tcTargetLow">—</div>
+              <div class="tc-sub" id="tcTargetLowSub">½ power</div>
+            </div>
+            <div class="target-card large">
+              <div class="tc-header">
+                <svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                <span>Target High</span>
+              </div>
+              <div class="tc-value c-amber" id="tcTargetHigh">—</div>
+              <div class="tc-sub" id="tcTargetHighSub">full power</div>
+            </div>
+          </div>
+
+          <!-- Price Bar Visualization -->
+          <div class="card animate-in" style="animation-delay:0.1s;" id="priceBarCard">
+            <div class="card-header">
+              <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              <span>Price Range Visualization</span>
+            </div>
+            <div class="price-bar-container" id="priceBarContainer"></div>
+            <div class="price-bar-legend">
+              <span><span class="dot" style="background:var(--text-secondary);"></span> Buy Avg</span>
+              <span><span class="dot" style="background:var(--blue-500);"></span> Target 5%</span>
+              <span><span class="dot" style="background:var(--emerald-500);"></span> Target Low</span>
+              <span><span class="dot" style="background:var(--amber-500);"></span> Target High</span>
+              <span><span class="rect"></span> ARB—ARA range</span>
+            </div>
+          </div>
+
+          <!-- How it works -->
+          <div class="card animate-in" style="animation-delay:0.15s;background:rgba(24,24,27,0.2);border-color:rgba(39,39,42,0.3);">
+            <div class="card-header">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span>Cara Kerja Adimology</span>
+            </div>
+            <div class="how-grid">
+              <div class="how-item"><div class="step">1. Hitung Fraksi</div>Jumlah tick harga antara ARB dan ARA berdasarkan aturan fraksi IDX (Rp1/2/5/10/25)</div>
+              <div class="how-item"><div class="step">2. Avg Bid/Offer</div>Rata-rata volume bid+offer per tick = (Total Bid + Total Offer) / Total Fraksi</div>
+              <div class="how-item"><div class="step">3. Power Fraksi</div>Berapa tick broker bisa gerakkan harga = Buy Lot / Avg Bid Offer per tick</div>
+              <div class="how-item"><div class="step">4. Target Realistis</div>Target 5% + power fraksi ticks. Low = ½ power, High = full power</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script type="module" src="./main.js"></script>
-  </body>
+    <!-- ═══════════ HISTORY ═══════════ -->
+    <div class="history-section open" id="historySection" style="margin-top:16px;">
+      <div class="history-toggle" id="historyToggle">
+        <div class="history-toggle-left">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="ht-label">Calculation History</span>
+          <span class="ht-count" id="historyCount">(0)</span>
+        </div>
+        <div class="history-toggle-right">
+          <button type="button" class="btn-clear" id="clearHistoryBtn" style="display:none;">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+          <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="history-body">
+        <div class="history-empty" id="historyEmpty">Belum ada history. Klik "Simpan ke History" setelah kalkulasi.</div>
+
+        <!-- Desktop Table -->
+        <div style="overflow-x:auto;">
+          <table class="history-table" id="historyTable">
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Emiten</th>
+                <th>Broker</th>
+                <th class="right">Buy Lot</th>
+                <th class="right">Buy Avg</th>
+                <th class="right">ARB</th>
+                <th class="right">ARA</th>
+                <th class="right">Power</th>
+                <th class="right">T5%</th>
+                <th class="right">Target Low</th>
+                <th class="right">Target High</th>
+                <th class="right">%High</th>
+                <th class="center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="history-cards" id="historyCards"></div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      &copy; 2025 ADIMOLOGY — Fair Stock Engine. All calculations performed locally.
+    </footer>
+  </div>
+
+  <script src="main.js"></script>
+</body>
 </html>

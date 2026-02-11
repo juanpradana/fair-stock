@@ -1,21 +1,26 @@
 {
-  "name": "Fair Stock",
-  "short_name": "FairStock",
-  "start_url": "/",
+  "name": "ADIMOLOGY — Fair Stock Calculator",
+  "short_name": "Adimology",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "description": "Fair Stock - Adimology based fair price calculator",
+  "orientation": "any",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "description": "Analisis Daya Investasi — Broker Power Calculator. Hitung target harga saham berdasarkan metode Adimology.",
+  "categories": ["finance", "utilities"],
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
