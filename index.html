@@ -766,6 +766,62 @@
     .animate-in { animation: fadeInUp 0.3s ease forwards; }
 
     /* ═══════════════════════════════════════════════════════════════
+       COPY INSIGHT BUTTON
+       ═══════════════════════════════════════════════════════════════ */
+    .btn-copy-insight {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+    }
+    .btn-copy-insight:hover { background: var(--bg-input); color: var(--text-primary); border-color: var(--border-hover); }
+    .btn-copy-insight:active { transform: translateY(1px); }
+    .btn-copy-insight svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .btn-copy-insight.copied {
+      color: var(--emerald-400);
+      border-color: rgba(16,185,129,0.4);
+      background: rgba(16,185,129,0.08);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--bg-card-solid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      padding: 10px 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--emerald-400);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 999;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ═══════════════════════════════════════════════════════════════
        SCROLLBAR
        ═══════════════════════════════════════════════════════════════ */
     ::-webkit-scrollbar { width: 6px; }
@@ -1015,8 +1071,20 @@
               <div class="how-item"><div class="step">4. Target Realistis</div>Target 5% + power fraksi ticks. Low = ½ power, High = full power</div>
             </div>
           </div>
+          <!-- Copy Insight Button -->
+          <button type="button" class="btn-copy-insight animate-in" style="animation-delay:0.2s;" id="copyInsightBtn">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copyInsightLabel">Copy Insight / Laporan</span>
+          </button>
+
         </div>
       </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+      <span id="toastMsg">Laporan berhasil disalin!</span>
     </div>
 
     <!-- ═══════════ HISTORY ═══════════ -->

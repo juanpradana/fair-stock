@@ -542,6 +542,122 @@ function main() {
     historySection.classList.toggle("open");
   });
 
+  // ─── Copy Insight ────────────────────────────────────────────
+
+  const copyInsightBtn = document.getElementById("copyInsightBtn");
+  const copyInsightLabel = document.getElementById("copyInsightLabel");
+  const toastEl = document.getElementById("toast");
+
+  function generateInsightText() {
+    if (!currentResult) return "";
+
+    const emiten = (elEmiten.value || "—").toUpperCase();
+    const broker = (elBroker.value || "—").toUpperCase();
+    const buyLot = parseNum(elBuyLot.value);
+    const buyAvg = parseNum(elBuyAvg.value);
+    const arbVal = parseNum(elArb.value);
+    const araVal = parseNum(elAra.value);
+    const tBid = parseNum(elTotalBid.value);
+    const tOffer = parseNum(elTotalOffer.value);
+    const r = currentResult;
+    const level = getPowerLevel(r.powerFraksi);
+    const now = new Date().toLocaleString("id-ID", {
+      day: "2-digit", month: "short", year: "numeric",
+      hour: "2-digit", minute: "2-digit"
+    });
+
+    const fraksiDetail = [];
+    if (r.fraksi.f1 > 0) fraksiDetail.push(`  Rp1  : ${r.fraksi.f1} ticks`);
+    if (r.fraksi.f2 > 0) fraksiDetail.push(`  Rp2  : ${r.fraksi.f2} ticks`);
+    if (r.fraksi.f5 > 0) fraksiDetail.push(`  Rp5  : ${r.fraksi.f5} ticks`);
+    if (r.fraksi.f10 > 0) fraksiDetail.push(`  Rp10 : ${r.fraksi.f10} ticks`);
+    if (r.fraksi.f25 > 0) fraksiDetail.push(`  Rp25 : ${r.fraksi.f25} ticks`);
+
+    const lines = [
+      `━━━━━━━━━━━━━━━━━━━━━━━━━`,
+      `  ADIMOLOGY — Laporan Analisis`,
+      `  ${now}`,
+      `━━━━━━━━━━━━━━━━━━━━━━━━━`,
+      ``,
+      `📊 EMITEN / BROKER`,
+      `  ${emiten} / ${broker}`,
+      ``,
+      `💰 DATA INPUT`,
+      `  Buy Lot      : ${fmt(buyLot)} lot`,
+      `  Buy Average  : Rp ${fmt(buyAvg)}`,
+      `  ARB          : Rp ${fmt(arbVal)}`,
+      `  ARA          : Rp ${fmt(araVal)}`,
+      `  Total Bid    : ${fmt(tBid)} lot`,
+      `  Total Offer  : ${fmt(tOffer)} lot`,
+      ``,
+      `📈 FRAKSI BREAKDOWN`,
+      ...fraksiDetail,
+      `  ─────────────────`,
+      `  Total Fraksi : ${r.fraksi.total} ticks`,
+      `  Bid+Offer    : ${fmt(r.totalBidOffer)} lot`,
+      `  Avg/Tick     : ${fmt(r.avgBidOffer)} lot`,
+      ``,
+      `⚡ POWER FRAKSI`,
+      `  ${r.powerFraksi} ticks — ${level.label}`,
+      ``,
+      `🎯 TARGET HARGA`,
+      `  Buy Average  : Rp ${fmt(buyAvg)}`,
+      `  Target +5%   : Rp ${fmt(r.target5pct)}`,
+      `  Target Low   : Rp ${fmt(r.targetLow)}  (+${r.pctLow.toFixed(1)}%)  ½ power`,
+      `  Target High  : Rp ${fmt(r.targetHigh)}  (+${r.pctHigh.toFixed(1)}%)  full power`,
+      ``,
+      `━━━━━━━━━━━━━━━━━━━━━━━━━`,
+      `  Powered by ADIMOLOGY`,
+      `━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    ];
+
+    return lines.join("\n");
+  }
+
+  function showToast(msg) {
+    const toastMsg = document.getElementById("toastMsg");
+    toastMsg.textContent = msg;
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 2500);
+  }
+
+  copyInsightBtn.addEventListener("click", async () => {
+    if (!currentResult) return;
+
+    const text = generateInsightText();
+    try {
+      await navigator.clipboard.writeText(text);
+      copyInsightBtn.classList.add("copied");
+      copyInsightLabel.textContent = "Berhasil disalin!";
+      showToast("Laporan berhasil disalin ke clipboard!");
+      setTimeout(() => {
+        copyInsightBtn.classList.remove("copied");
+        copyInsightLabel.textContent = "Copy Insight / Laporan";
+      }, 2500);
+    } catch (err) {
+      // Fallback for older browsers
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        copyInsightBtn.classList.add("copied");
+        copyInsightLabel.textContent = "Berhasil disalin!";
+        showToast("Laporan berhasil disalin ke clipboard!");
+        setTimeout(() => {
+          copyInsightBtn.classList.remove("copied");
+          copyInsightLabel.textContent = "Copy Insight / Laporan";
+        }, 2500);
+      } catch (e) {
+        showToast("Gagal menyalin. Coba lagi.");
+      }
+      document.body.removeChild(ta);
+    }
+  });
+
   // ─── Initial Render ───────────────────────────────────────────
 
   renderHistory(history, loadFromHistory, deleteFromHistory);
